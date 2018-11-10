@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Frame",
+    "load": true,
+    "path": "/"
+  },
+  {
+    "name": "HelloWorld",
+    "load": false,
+    "path": "/helloWorld"
+  },
+  {
+    "name": "Medical",
+    "load": true,
+    "path": "/medical"
+  },
+  {
+    "name": "Healthy",
+    "load": true,
+    "path": "/healthy"
+  },
+  {
+    "name": "More",
+    "load": true,
+    "path": "/more"
+  },
+  {
+    "name": "InkRipple",
+    "load": true,
+    "path": "/inkRipple"
+  },
+  {
+    "name": "MedicalDetail",
+    "load": true,
+    "path": "/medicalDetail"
+  },
+  {
+    "name": "HealthyDetail",
+    "load": true,
+    "path": "/healthyDetail"
+  },
+  {
+    "name": "FloatingMenu",
+    "load": true,
+    "path": "/floatingMenu"
+  }
+]
