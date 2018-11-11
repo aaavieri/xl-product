@@ -41,6 +41,17 @@ const Dictionary = {
       return ''
     }
   },
+  getObject (tableName, type, value) {
+    var underLineType = this.humpToUnderLine(type)
+    var item = this.dictData[`${tableName}-${underLineType}`].find((item, index, arr) => {
+      return item.value === value
+    })
+    if (item) {
+      return item
+    } else {
+      return {}
+    }
+  },
   clear () {
     this.dictData = {}
     this.inited = false

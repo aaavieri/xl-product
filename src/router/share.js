@@ -26,16 +26,10 @@ export default new Router({
       component: Frame
     },
     {
-      path: '/medicalDetail',
-      name: 'MedicalDetail',
+      path: '/detail',
+      name: 'Detail',
       props: true,
-      component: () => import ('@/components/MedicalDetail.vue')
-    },
-    {
-      path: '/healthyDetail',
-      name: 'HealthyDetail',
-      props: true,
-      component: () => import ('@/components/HealthyDetail.vue')
+      component: () => import ('@/components/Detail.vue')
     }
   ]
 })
