@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './Product.vue'
 import router from './router/product'
+import VueMaterial from 'vue-material'
 
 import './assets/css/pink.scss'
 import './assets/css/green.scss'
@@ -15,6 +16,7 @@ import ColumnInfoPlugin from './plugins/ColumnInfoPlugin'
 Vue.use(DictionaryPlugin)
 Vue.use(HttpPlugin)
 Vue.use(ColumnInfoPlugin)
+Vue.use(VueMaterial)
 Vue.config.productionTip = false
 
 new Vue({

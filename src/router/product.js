@@ -1,6 +1,6 @@
 // import Vue from 'vue'
 import Router from 'vue-router'
-import Frame from '@/components/Frame.vue'
+import Frame from '@/components/product/Frame.vue'
 // import Home from '@/views/Home.vue'
 // import compsConfig from '@/components/comps.config'
 
@@ -29,7 +29,7 @@ export default new Router({
       path: '/detail',
       name: 'Detail',
       props: true,
-      component: () => import ('@/components/Detail.vue')
+      component: () => import ('@/components/product/Detail.vue')
     }
   ]
 })

@@ -19,7 +19,7 @@
               <md-icon>menu</md-icon>
             </md-button>
             <span class="md-title" v-show="!searching">{{selected.name}}</span>
-            <md-autocomplete class="search" md-layout="box" :md-fuzzy-search="fuzzySearch"
+            <md-autocomplete class="search" md-layout="box"
                              v-model="searchText" v-show="searching" :md-options="searchList" md-dense>
               <label>Search...</label>
             </md-autocomplete>
@@ -85,7 +85,7 @@
 <script>
 // import swal from 'sweetalert2'
 import { mapState, mapMutations } from 'vuex'
-
+let reg = null
 export default {
   name: 'Frame',
   data () {
@@ -239,6 +239,17 @@ export default {
   watch: {
     selectedTab (val) {
       this.selected = this.tabList.find(tab => tab.id === val)
+    },
+    searchText (val) {
+      let needSearch = val.trim() !== ''
+      this.treeData.map((item, index) => {
+        item.open = false
+        if (index === 0 && needSearch) reg = new RegExp(val, 'i')
+        item.children.map(function (child) {
+          child.matchSearch = !needSearch || reg.test(child.name) || reg.test(child.serial)
+          item.open = needSearch && (item.open || child.matchSearch)
+        })
+      })
     }
   },
   mounted () {
@@ -249,6 +260,10 @@ export default {
     }
     this.$dictionary.initData(this.$http)
     this.$columnInfo.initData(this.$http)
+    let bodyHeight = document.body.offsetHeight
+    this.$el.querySelector('div.frame-app').style.height = `${bodyHeight - 60}px`
+    this.$el.querySelector('div.frame-app').style.minHeight = `${bodyHeight - 60}px`
+    this.$el.querySelector('div.frame-app').style.maxHeight = `${bodyHeight - 60}px`
     this.initData()
   }
 }
