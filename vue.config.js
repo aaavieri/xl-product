@@ -40,7 +40,10 @@ module.exports = {
       "vue-material": "VueMaterial",
       "axios": "axios",
       "velocity": "Velocity",
-      "sweetalert2": "swal"
+      "sweetalert2": "swal",
+      "vue-draggable": "VueDraggable",
+      "vue-clipboard2": "VueClipboard",
+      "vue-toasted": "Toasted"
     }
   }
 }

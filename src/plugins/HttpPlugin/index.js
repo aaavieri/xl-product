@@ -18,17 +18,25 @@ instance.interceptors.response.use(function (response) {
   // 对响应数据做点什么
   return response
 }, function (error) {
-  var message = error.response.data.errMsg || '未知错误'
-  swal({
-    title: '操作失败!',
-    text: message,
-    type: 'error',
-    confirmButtonClass: 'md-primary md-button md-raised md-primary md-button-content md-theme-default',
-    confirmButtonText: 'OK',
-    buttonsStyling: false
-  })
+  if (!error.response) {
+    error.response = {}
+  }
+  if (!error.response.data) {
+    error.response.data = {}
+  }
+  error.response.data.errMsg = error.response.data.errMsg || '未知错误'
+  error.response.data.success = false
+  // swal({
+  //   title: '操作失败!',
+  //   text: message,
+  //   type: 'error',
+  //   confirmButtonClass: 'md-primary md-button md-raised md-primary md-button-content md-theme-default',
+  //   confirmButtonText: 'OK',
+  //   buttonsStyling: false
+  // })
   // 对响应错误做点什么
-  return Promise.reject(error)
+  // return Promise.reject(error)
+  return Promise.resolve(error.response)
 })
 
 const HttpPlugin = {

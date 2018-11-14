@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import App from './Product.vue'
-import router from './router/product'
+import App from './Share.vue'
+import router from './router/share'
 
 import './assets/css/pink.scss'
 import './assets/css/green.scss'
@@ -11,10 +11,20 @@ import store from './event'
 import DictionaryPlugin from './plugins/DictionaryPlugin'
 import HttpPlugin from './plugins/HttpPlugin'
 import ColumnInfoPlugin from './plugins/ColumnInfoPlugin'
+import SettingsPlugin from './plugins/SettingsPlugin'
+import VueMaterial from 'vue-material'
+import VueClipboard from 'vue-clipboard2'
+import Toasted from 'vue-toasted'
 
+
+Vue.use(VueMaterial)
+Vue.use(VueClipboard)
+Vue.use(Toasted)
 Vue.use(DictionaryPlugin)
 Vue.use(HttpPlugin)
 Vue.use(ColumnInfoPlugin)
+Vue.use(SettingsPlugin)
+// Vue.use(NotificationPlugin)
 Vue.config.productionTip = false
 
 new Vue({

@@ -74,6 +74,18 @@ html {
   width: 60vw;
   max-width: 500px;
 }
+.select-class {
+  width: 60vw;
+  max-width: 500px;
+}
+.select-field {
+  width: calc(100% - 40px);
+  max-width: 500px;
+}
+.select-input input {
+  -webkit-text-fill-color: #fff!important;
+  color: #fff!important;
+}
 .md-drawer {
   width: 230px;
   max-width: calc(100vw - 125px);
