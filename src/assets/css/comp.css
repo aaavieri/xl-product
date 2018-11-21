@@ -14,6 +14,7 @@ html {
 }
 .frame-container {
   width: 100%;
+  /*height: calc(100vh - 60px);*/
   /*display: inline-flex;*/
   /*overflow: hidden;*/
   /*border: 1px solid rgba(#000, 0.26);*/
@@ -37,6 +38,9 @@ html {
 .my-bottom-bar {
   height: 50px;
   background-color: #448aff!important;
+}
+.share-bottom-bar {
+  height: 50px;
 }
 .my-bottom-item {
   color: #fff!important;
@@ -216,4 +220,8 @@ html {
 }
 .detail-content {
   padding-left: 0px;
+}
+
+.toast-icon {
+  margin-right: 10px;
 }

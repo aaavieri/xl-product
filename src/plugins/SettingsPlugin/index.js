@@ -13,14 +13,21 @@ const SettingsInfo = {
     }
     return this.settingInfo[pageName][keyName]
   },
+  setSetting (pageName, keyName, value) {
+    if (!this.settingInfo[pageName]) {
+      this.settingInfo[pageName] = {}
+    }
+    this.settingInfo[pageName][keyName] = value
+    // this.saveSettings()
+  },
   saveSettings () {
     this.settings = JSON.stringify(this.settingInfo)
-    this.http.post('/authApi/saveSettings', {settings: this.settings})
+    return this.http.post('/authApi/saveSettings', {settings: this.settings})
   },
   clearSettings () {
     this.settings = null
     this.settingInfo = {}
-    this.http.post('/authApi/clearSettings')
+    return this.http.post('/authApi/clearSettings')
   }
 }
 const SettingsInfoPlugin = {

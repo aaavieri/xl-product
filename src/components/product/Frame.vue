@@ -72,10 +72,11 @@
         </md-speed-dial>
       </md-card>
       <md-card class="tabbar-container">
-        <md-bottom-bar md-type="fixed" class="my-bottom-bar md-primary md-elevation-20 radius-shape-div" v-bind:md-active-item="selected.id">
+        <md-bottom-bar md-type="fixed" class="my-bottom-bar md-primary md-elevation-20 radius-shape-div"
+                       :md-active-item="selected.id || tabList[0].id">
           <md-bottom-bar-item class="my-bottom-item" v-for="(item, index) in tabList"
                               :key="index" :id="item.id" :md-label="item.name" :md-icon="item.imgSrc"
-                              @click="clickBottomBar(item)"></md-bottom-bar-item>
+                              @click="clickBottomBar(item)"/>
         </md-bottom-bar>
       </md-card>
     </div>
@@ -118,7 +119,7 @@ export default {
           name: '未完待续',
           compName: 'More',
           themeName: 'pink-custom',
-          imgSrc: 'more_horiz'
+          imgSrc: 'favorite_border'
         }
       ]
     }

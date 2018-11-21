@@ -1,4 +1,5 @@
 module.exports = {
+  productionSourceMap: process.env.NODE_ENV !== 'production',
   devServer: {
     port: 8020
   },
@@ -33,7 +34,7 @@ module.exports = {
   },
 
   configureWebpack: {
-    externals: {
+    externals: process.env.NODE_ENV === 'production' ? {
       "vue": "Vue",
       "vuex": "Vuex",
       "vue-router": "VueRouter",
@@ -43,7 +44,20 @@ module.exports = {
       "sweetalert2": "swal",
       "vue-draggable": "VueDraggable",
       "vue-clipboard2": "VueClipboard",
-      "vue-toasted": "Toasted"
+      "vue-toasted": "Toasted",
+      "vue2-touch-events": "vueTouchEvents",
+      "vue-popperjs": "VuePopper"
+    } : {
+      "vue": "Vue",
+      "vuex": "Vuex",
+      "vue-router": "VueRouter",
+      "axios": "axios",
+      "velocity": "Velocity",
+      "sweetalert2": "swal",
+      "vue-draggable": "VueDraggable",
+      "vue-clipboard2": "VueClipboard",
+      "vue-toasted": "Toasted",
+      "vue2-touch-events": "vueTouchEvents"
     }
   }
 }

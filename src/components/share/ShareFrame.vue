@@ -7,10 +7,17 @@
     </div>
     <div class="frame-container frame-self" v-else-if="step === 3">
       <!--<medical :medicalData="medicalData" :selectedTabData="selected"></medical>-->
-      <component :is="selected.compName">
-      </component>
+      <transition enter-active-class="animated fadeIn"
+                  leave-active-class="animated fadeOut"
+                  :duration="300">
+        <component :is="selected.compName" :theme-name="selected.themeName">
+        </component>
+      </transition>
       <md-card class="tabbar-container">
-        <md-bottom-bar md-type="fixed" class="my-bottom-bar md-primary md-elevation-20 radius-shape-div" :md-active-item="selectedTabId">
+        <md-bottom-bar md-type="fixed"
+                       :class="selected.themeName + '-bottom-bar'"
+                       class="share-bottom-bar md-primary md-elevation-20 radius-shape-div"
+                       :md-active-item="selectedTabId">
           <md-bottom-bar-item class="my-bottom-item" v-for="(item, index) in tabList"
                               :key="index" :id="item.id" :md-label="item.name" :md-icon="item.imgSrc"
                               @click="clickBottomBar(item)"/>
@@ -21,7 +28,6 @@
 </template>
 
 <script>
-import crypto from 'crypto'
 import Account from './Account'
 import Favorite from './Favorite'
 import New from './New'
@@ -40,7 +46,7 @@ export default {
     return {
       loginData: {
         userName: window.localStorage.shareFrameUserName || '',
-        password: '',
+        password: '1234567',
         isLogging: false
       },
       selected: {},
@@ -49,27 +55,67 @@ export default {
           id: 1,
           name: '收藏',
           compName: 'Favorite',
+          themeName: 'purple-custom',
           imgSrc: 'favorite_border'
         },
         {
           id: 2,
           name: '分类',
           compName: 'Classification',
+          themeName: 'default',
           imgSrc: 'class'
         },
         {
           id: 3,
           name: '最新',
           compName: 'New',
+          themeName: 'green-custom',
           imgSrc: 'fiber_new'
         },
         {
           id: 4,
           name: '设置',
           compName: 'Account',
+          themeName: 'orange-custom',
           imgSrc: 'account_box'
         }
-      ]
+      ],
+      defaultSetting: {
+        accountSetting: {
+          saveUserName: true,
+          savePassword: false
+        },
+        pageSetting: {
+          autoSaveFavorite: false,
+          defaultColorClass: false,
+          defaultColorNew: false,
+          defaultSort: {
+            sortKey: 'updateTime',
+            sortName: '更新时间',
+            sortBy: 'desc',
+            sortValue: -1,
+            sortIcon: 'arrow_downward'
+          },
+          maxDisplayNew: 10
+        }
+      },
+      userSetting: {
+        accountSetting: {},
+        pageSetting: {}
+      }
+    }
+  },
+  provide () {
+    return {
+      Frame: {
+        goFavorite: this.goFavorite,
+        goClassification: this.goClassification,
+        goNew: this.goNew,
+        goAccount: this.goAccount,
+        userName: this.userName,
+        defaultSetting: this.defaultSetting,
+        userSetting: this.userSetting
+      }
     }
   },
   methods: {
@@ -80,7 +126,7 @@ export default {
         html:
         `<input id='userNameInput' placeholder='请输入用户' class='swal2-input' value='${frame.loginData.userName}'>
         <input id='passwordInput'  placeholder='请输入密码' class='swal2-input' value='${frame.loginData.password}' type='password'>`,
-        focusConfirm: false,
+        focusConfirm: true,
         allowEscapeKey: false,
         allowOutsideClick: false,
         allowEnterKey: true,
@@ -112,7 +158,7 @@ export default {
       if (this.loginData.isLogging) {
         return
       }
-      let password = this.md5(this.loginData.password);
+      let password = this.$func.md5(this.loginData.password);
 
       //设置在登录状态
       this.loginData.isLogging = true;
@@ -144,12 +190,17 @@ export default {
         })
       })
     },
-    md5 (str) {
-      str = str || ''
-      let md5sum = crypto.createHash('md5');
-      md5sum.update(str);
-      str = md5sum.digest('hex');
-      return str;
+    goFavorite () {
+      this.clickBottomBar(this.tabList[0])
+    },
+    goClassification () {
+      this.clickBottomBar(this.tabList[1])
+    },
+    goNew () {
+      this.clickBottomBar(this.tabList[2])
+    },
+    goAccount () {
+      this.clickBottomBar(this.tabList[3])
     },
     clickBottomBar (item) {
       // 这两行的写法是一样的
@@ -167,7 +218,7 @@ export default {
       this.$http.get('/authApi/getShareData').then(response => {
         if (response.data.success) {
           frame.initProductData(response.data.data.productData)
-          frame.$settings.initData(frame.$http, response.data.data.settings)
+          frame.initSetting(response.data.data.userSettings)
           frame.completeLoad()
         } else {
           swal({
@@ -180,6 +231,11 @@ export default {
           })
         }
       })
+    },
+    initSetting (userSettings) {
+      this.$settings.initData(this.$http, userSettings)
+      Object.assign(this.userSetting.accountSetting, this.defaultSetting.accountSetting, this.$settings.getSetting('share', 'accountSetting'))
+      Object.assign(this.userSetting.pageSetting, this.defaultSetting.pageSetting, this.$settings.getSetting('share', 'pageSetting'))
     },
     completeLoad () {
       let frame = this
@@ -204,6 +260,9 @@ export default {
     // 下面一行是使用MultiModuleEventHub和NamespaceEventHub都能用的写法
     // ...mapState({ selectedTab: state => state.tab.selectedTab })
     // 下面一行是使用NamespaceEventHub专用的写法
+    userName () {
+      return this.loginData.userName
+    },
     ...mapState('share', {
       selectedTabId: state => state.selectedTabId,
       step: state => state.step,
@@ -244,43 +303,22 @@ export default {
 </script>
 
 <style scoped>
-  .mask {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background: rgba(0, 0, 0, 0.4);
+  .green-custom-bottom-bar {
+    background-color: var(--md-theme-green-custom-primary, #448aff)!important;
   }
-  .frame-container {
-    width: 100%;
-    /*display: inline-flex;*/
-    /*overflow: hidden;*/
-    /*border: 1px solid rgba(#000, 0.26);*/
-    /*background: rgba(#000, 0.06);*/
+  .purple-custom-bottom-bar {
+    background-color: var(--md-theme-purple-custom-primary, #448aff)!important;
   }
-  .frame-self {
-    height: 100%;
+  .orange-custom-bottom-bar {
+    background-color: var(--md-theme-orange-custom-primary, #448aff)!important;
   }
-  /*.page-container {*/
-    /*height: available*/
-  /*}*/
-  .tabbar-container {
-    height: 60px;
-    width: 100%;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow: hidden;
-    border: 0px solid rgba(#000, 0.26);
-    background: rgba(#000, 0.06);
-    position: fixed;
-    bottom: 0;
+  .pink-custom-bottom-bar {
+    background-color: var(--md-theme-pink-custom-primary, #448aff)!important;
   }
-  .my-bottom-bar {
-    height: 50px;
+  .brown-custom-bottom-bar {
+    background-color: var(--md-theme-brown-custom-primary, #448aff)!important;
+  }
+  .default-bottom-bar {
+    background-color: var(--md-theme-default-primary, #448aff)!important;
   }
 </style>

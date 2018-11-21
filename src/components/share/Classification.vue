@@ -1,6 +1,6 @@
 <template>
-  <div class="frame-container frame-self">
-    <md-card class="page-container no-border">
+  <div class="frame-container">
+    <md-card class="page-container no-border" :md-theme="themeName">
       <md-app md-waterfall md-mode="fixed" class="frame-app">
         <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div">
           <md-button class="md-icon-button">
@@ -52,12 +52,13 @@
             <div class="md-layout" ref="copyContainer">
               <div class="md-layout-item" style="float: left; width: 100%">
                 <a class="detail-url" :href="selectProduct.detailUrl">
-                  <u style="float: left" v-if="selectProduct.detailUrl">{{selectProduct.detailUrl}}</u>
-                  <u style="float: left" v-else>暂无</u>
+                  <u style="float: left; width: 100%" v-if="selectProduct.detailUrl">{{selectProduct.detailUrl}}</u>
+                  <u style="float: left; width: 100%" v-else>暂无</u>
                 </a>
               </div>
             </div>
             <i class="mintui mintui-fuzhi icon-button icon-copy md-elevation-20"
+               @click="checkUrl"
                v-clipboard:copy="selectProduct.detailUrl"
                v-clipboard:success="onCopy"
                v-clipboard:error="onError"></i>
@@ -75,12 +76,43 @@
                     <span>{{treeItem.name}}</span>
                     <p>{{treeItem.serial}}</p>
                   </div>
+                  <md-button v-if="!treeItem.showColorSelector" class="md-icon-button md-list-action bottom" @click.stop="cancelFavorite(treeItem)">
+                    <md-icon class="mintui mintui-red_star favorite-icon" :style="favoriteIconStyle(treeItem)"/>
+                  </md-button>
+                  <popper v-else trigger="click" :append-to-body="true"
+                          :options="{placement: 'left'}"
+                          :data-value="treeItem"
+                          @show="selectColorStart"
+                          @hide="selectColorComplete"	>
+                    <div class="color-select-div" >
+                      <span class="color-select-span"
+                            :style="selectorColorStyle(color)"
+                            :class="{'active' : color.colorName === treeItem.color }"
+                            @click.stop="selectColor(color, treeItem)"
+                            v-for="color in colorList">
+                      </span>
+                    </div>
+                    <md-button slot="reference" class="md-icon-button md-list-action bottom" @click.stop="()=>{}">
+                      <md-icon class="mintui" :class="treeItem.color === 'none' ? 'mintui-star-empty' : 'mintui-red_star'"
+                               :style="favoriteIconStyle(treeItem)"/>
+                    </md-button>
+                  </popper>
                 </md-list-item>
               </md-list>
             </md-list-item>
           </md-list>
         </md-app-content>
       </md-app>
+
+      <!--<div class="color-select-div">-->
+      <!--<span class="color-select-span"-->
+            <!--:style="selectorColorStyle(color)"-->
+            <!--:class="{'active' : color.colorName === 'default'}"-->
+            <!--@click.stop="selectColor(color, treeItem)"-->
+            <!--v-for="color in colorList">-->
+      <!--</span>-->
+      <!--</div>-->
+
       <md-speed-dial class="md-bottom-left" mdEvent="click" >
         <md-speed-dial-target>
           <md-icon class="md-morph-initial">add</md-icon>
@@ -103,13 +135,17 @@
 
 <script>
 import PopupAction from '../common/PopupAction'
-import { mapState, mapMutations } from 'vuex'
+import VuePopper from 'vue-popperjs'
+import TabCommon from './TabCommon'
+import { mapState } from 'vuex'
 let reg = null
 export default {
   name: 'Classification',
   components: {
-    PopupAction
+    PopupAction,
+    popper: VuePopper
   },
+  mixins: [TabCommon],
   data () {
     return {
       classList: [],
@@ -118,16 +154,34 @@ export default {
       searchText: '',
       selectClass: 'all',
       showPopUp: false,
-      selectProduct: {}
+      selectProduct: {},
+      favoriteList: this.$settings.getSetting('share', 'favoriteList') || []
     }
   },
   methods: {
     initClassList () {
       let classSet = new Set(this.productData.map(item => `${item.tableName}-${item.typeId}`))
       this.classList = Array.from(classSet).map(item => {
-        let productList = this.productData.filter(product => `${product.tableName}-${product.typeId}` === item).map(item => {
-          item.matchSearch = true
-          return item
+        let productList = this.productData.filter(product => `${product.tableName}-${product.typeId}` === item).map(product => {
+          // let ret = Object.assign({},
+          //   product, {matchSearch: true, color: 'none', favorite: true})
+          // let favoriteItem = this.favoriteList.find(favorite => {
+          //   return favorite.tableName === product.tableName && favorite.serial === product.serial
+          // }) || {favorite: false}
+          // Object.assign(ret, favoriteItem)
+          // return ret
+          return Object.assign({},
+            product, {matchSearch: true, color: 'none', favorite: true, showColorSelector: false},
+            this.favoriteList.find(favorite => {
+              return favorite.tableName === product.tableName && favorite.serial === product.serial
+            }) || {favorite: false, showColorSelector: true}
+          )
+
+          // product.matchSearch = true
+          // product.color = 'none'
+          // product.favorite = this.favoriteList.length > 0 && this.favoriteList.find(favorite => {
+          //   return favorite.tableName === item.tableName && favorite.serial === item.serial
+          // })
         })
         let {typeId, tableName} = productList[0]
         let typeName = this.$dictionary.getName(tableName, 'typeId', typeId)
@@ -170,19 +224,23 @@ export default {
       this.showPopUp = true
       this.selectProduct = treeItem
     },
-    onCopy (e) {
-      this.$toasted.clear()
-      if (this.selectProduct.detailUrl) {
-        this.$toasted.success("复制成功！", {
-          icon: "content-copy",
-          iconPack: "mdi",
+    checkUrl () {
+      if (!this.selectProduct.detailUrl) {
+        this.$toasted.clear()
+        this.$toasted.error("无复制内容！", {
+          icon: "mintui mintui-alert toast-icon",
+          iconPack: "custom-class",
           position: "bottom-center",
           duration : 5000
         });
-      } else {
-        this.$toasted.error("无复制内容！", {
-          icon: "message-alert-outline",
-          iconPack: "mdi",
+      }
+    },
+    onCopy (e) {
+      if (this.selectProduct.detailUrl) {
+        this.$toasted.clear()
+        this.$toasted.success("复制成功！", {
+          icon: "mintui mintui-copy toast-icon",
+          iconPack: "custom-class",
           position: "bottom-center",
           duration : 5000
         });
@@ -191,8 +249,8 @@ export default {
     onError (e) {
       this.$toasted.clear()
       this.$toasted.error("复制失败！", {
-        icon: "message-alert-outline",
-        iconPack: "mdi",
+        icon: "mintui mintui-alert toast-icon",
+        iconPack: "custom-class",
         position: "bottom-center",
         duration : 5000
       });
@@ -200,14 +258,68 @@ export default {
     openUrl () {
       if (this.selectProduct.detailUrl) {
         window.location.href = this.selectProduct.detailUrl
+      } else {
+        this.$toasted.clear()
+        this.$toasted.error("暂无链接！", {
+          icon: "mintui mintui-alert toast-icon",
+          iconPack: "custom-class",
+          position: "bottom-center",
+          duration : 5000
+        });
       }
     },
-    ...mapMutations('share', ['selectTab', 'initProductData', 'goNextStep', 'goLogin'])
+    cancelFavorite (item) {
+      item.favorite = false
+      item.showColorSelector = true
+      item.color = 'none'
+      let index = this.favoriteList.findIndex(favorite => {
+        return favorite.tableName === item.tableName && favorite.serial === item.serial
+      })
+      if (index > -1) this.favoriteList.splice(index, 1)
+    },
+    selectorColorStyle (colorData) {
+      return {
+        'background-color': colorData.colorBk1
+      }
+    },
+    favoriteIconStyle (item) {
+      let colorData = this.colorList.find(color => color.colorName === item.color)
+      if (!colorData) {
+        return {}
+      } else if (item.color === 'default') {
+        return {
+          color: 'rgb(244, 93, 78)!important'
+        }
+      } else {
+        return {
+          color: `${colorData.colorBk1}!important`
+        }
+      }
+    },
+    selectColorStart (popper) {
+      let item = popper.dataValue
+      item.favorite = true
+      item.color = 'default'
+      this.favoriteList.push({
+        tableName: item.tableName,
+        serial: item.serial,
+        color: item.color,
+        favoriteOrder: this.favoriteList.length
+      })
+    },
+    selectColor (colorData, item) {
+      item.color = colorData.colorName
+      this.favoriteList.find(favorite => {
+        return favorite.tableName === item.tableName && favorite.serial === item.serial
+      }).color = colorData.colorName
+    },
+    selectColorComplete (popper) {
+      let item = popper.dataValue
+      item.showColorSelector = false
+    }
   },
   computed: {
-    ...mapState('share', {
-      productData: state => state.productData
-    })
+    ...mapState('share', ['productData'])
   },
   watch: {
     searchText (val) {
@@ -220,6 +332,12 @@ export default {
           item.open = needSearch && (item.open || child.matchSearch)
         })
       })
+    },
+    favoriteList: {
+      handler (value) {
+        this.$settings.setSetting('share', 'favoriteList', value)
+      },
+      deep: true
     }
   },
   mounted () {
@@ -229,20 +347,60 @@ export default {
 </script>
 
 <style scoped>
-  .detail-url {
-    overflow: hidden;
+
+  .color-select-div {
+    /*background-color: var(--md-theme-default-text-primary-on-tooltip, #fff);*/
+    /*width: 100%;*/
+    /*margin-right: 20px;*/
+    /*margin-top: 10px;*/
+    background-color: rgba(0, 0, 0, 0);
+    height: 30px;
+    display: flex;
+    z-index: 100;
+    justify-content: flex-end;
+  }
+
+  span.color-select-span {
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-block;
+    height: 24px;
+    margin: auto 3px;
+    position: relative;
+    z-index: 100;
+    width: 24px;
+    padding: 8px;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
     white-space: nowrap;
-    text-overflow:ellipsis;
+    vertical-align: baseline;
+  }
+
+  .color-select-div span.active {
+    height: 30px;
+    width: 30px;
+    border: 3px solid #0bf;
+    /*border-color: #0bf;*/
+  }
+
+  .detail-url {
     float: left;
     width: 100%;
-    color: rgba(0,0,0,0.87)!important;
     margin-bottom: 20px;
+    display: block;
   }
-  .frame-container {
+
+  .detail-url u {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: rgba(0,0,0,0.87)!important;
     width: 100%;
-  }
-  .frame-self {
-    height: 100%;
+    display: block;
   }
 
   .icon-copy {
@@ -286,5 +444,8 @@ export default {
     direction: ltr;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+  .favorite-icon {
+    color: rgb(244, 93, 78)!important;
   }
 </style>
