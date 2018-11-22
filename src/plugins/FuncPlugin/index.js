@@ -68,6 +68,9 @@ const Func = {
       }
       let key
       for (key in source) {
+        if (!source[key]) {
+          continue
+        }
         if (typeof source[key] === 'object') {
           target[key] = this.deepCopy(source[key])
         } else {

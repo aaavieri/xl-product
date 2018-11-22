@@ -403,7 +403,7 @@
             icon: "mintui mintui-alert toast-icon",
             iconPack: "custom-class",
             position: "bottom-center",
-            duration : 5000
+            duration : 3000
           });
         }
       },
@@ -413,7 +413,7 @@
           icon: "mintui mintui-copy toast-icon",
           iconPack: "custom-class",
           position: "bottom-center",
-          duration : 5000
+          duration : 3000
         });
       },
       onCopyError (e) {
@@ -422,7 +422,7 @@
           icon: "mintui mintui-alert toast-icon",
           iconPack: "custom-class",
           position: "bottom-center",
-          duration : 5000
+          duration : 3000
         });
       },
       ...mapMutations('share', ['setFavoriteList'])

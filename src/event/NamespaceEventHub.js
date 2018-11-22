@@ -48,16 +48,13 @@ const share = {
         maxDisplayNew: 10
       }
     },
-    dbSetting: {
-      accountSetting: {},
-      pageSetting: {}
-    },
+    dbSetting: {},
     favoriteList: []
   },
   mutations: {
     setDbSetting (state, setting) {
       // state.dbSetting = setting
-      Func.deepAssign(state.dbSetting, setting)
+      state.dbSetting = Func.deepAssign({}, state.dbSetting, setting)
     },
     setFavoriteList (state, favoriteList) {
       if (state.favoriteList.length > 0) {
@@ -75,6 +72,9 @@ const share = {
     goNextStep (state) {
       state.step = Math.min(state.step + 1, state.maxStep)
     },
+    goLogin (state) {
+      state.step = 1
+    },
     goStep (state, step) {
       state.step = Math.min(step, state.maxStep)
     },
@@ -85,7 +85,8 @@ const share = {
   },
   getters: {
     userSetting (state) {
-      return Func.deepAssign({}, state.defaultSetting, state.dbSetting)
+      let userSetting = Func.deepAssign({}, state.defaultSetting, state.dbSetting)
+      return userSetting
     }
   }
 }

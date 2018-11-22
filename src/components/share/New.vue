@@ -274,7 +274,7 @@ export default {
           icon: "mintui mintui-alert toast-icon",
           iconPack: "custom-class",
           position: "bottom-center",
-          duration : 5000
+          duration : 3000
         });
       }
     },
@@ -284,7 +284,7 @@ export default {
         icon: "mintui mintui-copy toast-icon",
         iconPack: "custom-class",
         position: "bottom-center",
-        duration : 5000
+        duration : 3000
       });
     },
     onCopyError (e) {
@@ -293,7 +293,7 @@ export default {
         icon: "mintui mintui-alert toast-icon",
         iconPack: "custom-class",
         position: "bottom-center",
-        duration : 5000
+        duration : 3000
       });
     }
   },
@@ -480,7 +480,8 @@ export default {
       font-size: 18px;
       padding: 8px;
       color: #ffffff;
-      border-radius: 15%;
+      /*border-radius: 15%;*/
+      border-radius: 15px;
       cursor: pointer;
       i {
         font-size: 18px;

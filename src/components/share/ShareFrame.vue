@@ -241,6 +241,10 @@ export default {
         accountSetting: this.$settings.getSetting('share', 'accountSetting'),
         pageSetting: this.$settings.getSetting('share', 'pageSetting')
       })
+      window.localStorage.setItem('shareSaveUserNameFlag', this.userSetting.accountSetting.saveUserName)
+      this.saveUserNameToStorage()
+      window.localStorage.setItem('shareSavePasswordFlag', this.userSetting.accountSetting.savePassword)
+      this.savePasswordToStorage()
       this.setFavoriteList(this.$settings.getSetting('share', 'favoriteList'))
     },
     completeLoad () {
@@ -304,6 +308,14 @@ export default {
         this.initData()
       } else if (val === 3) {
         this.selectTab(this.selectedTabId || 1)
+      } else if (val === 1) {
+        if (window.localStorage.getItem('shareSavePasswordFlag') !== 'true') {
+          this.loginData.autoLogging = false
+          this.initLogin()
+        } else {
+          this.loginData.autoLogging = true
+          this.doLogin()
+        }
       }
     },
     userSettingSaveUserName: {

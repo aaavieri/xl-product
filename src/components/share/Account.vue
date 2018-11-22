@@ -6,6 +6,11 @@
           <div class="account-title">
             <span>个人设置【{{userName}}】</span>
           </div>
+          <div class="md-toolbar-section-end">
+            <md-button class="md-icon-button" @click="doLogout">
+              <md-icon class="mintui mintui-dengchu2" style="color: #ffffff"/>
+            </md-button>
+          </div>
         </md-app-toolbar>
         <md-app-content class="account-content">
           <div class="md-layout">
@@ -394,7 +399,48 @@ export default {
         }
       })
     },
-    ...mapMutations('share', ['setDbSetting'])
+    doLogout () {
+      let msg = '您确定要退出登录吗？'
+      if (this.accountSetting.savePassword) {
+        msg = '退出登录后您保存的密码也将不再保存，是否退出？'
+      }
+      let frame = this
+      swal({
+        title: '提示!',
+        text: msg,
+        type: 'question',
+        showCancelButton: true,
+        cancelButtonText: '取消',
+        confirmButtonText: '确定'
+      }).then(({value}) => {
+        if (value) {
+          window.localStorage.removeItem('shareFramePassword')
+          frame.$http.post('/users/logout').then(response => {
+            if (response.data.success) {
+              swal({
+                title: '提示!',
+                text: '成功退出',
+                type: 'success',
+                confirmButtonText: '确定',
+                timer: 2000
+              }).then(() => {
+                frame.goLogin()
+              })
+            } else {
+              throw new Error('退出失败')
+            }
+          }).catch(() => {
+            swal({
+              title: '提示!',
+              text: '退出失败',
+              type: 'error',
+              confirmButtonText: '确定'
+            })
+          })
+        }
+      })
+    },
+    ...mapMutations('share', ['setDbSetting', 'goLogin'])
   },
   created () {
     this.accountSetting = Object.assign({}, this.userSetting.accountSetting)
@@ -409,7 +455,8 @@ export default {
   }
 
   .account-title {
-    width: 100%;
+    width: calc(100% - 80px);
+    margin-left: 40px;
     height: 50px;
     /*left: 0px;*/
     text-align: center;
