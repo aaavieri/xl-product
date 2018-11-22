@@ -32,7 +32,7 @@ import Account from './Account'
 import Favorite from './Favorite'
 import New from './New'
 import Classification from './Classification'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'ShareFrame',
@@ -45,9 +45,11 @@ export default {
   data () {
     return {
       loginData: {
-        userName: window.localStorage.shareFrameUserName || '',
-        password: '1234567',
-        isLogging: false
+        userName: '',
+        password: '',
+        savePassword: '',
+        isLogging: false,
+        autoLogging: false
       },
       selected: {},
       tabList: [
@@ -79,30 +81,7 @@ export default {
           themeName: 'orange-custom',
           imgSrc: 'account_box'
         }
-      ],
-      defaultSetting: {
-        accountSetting: {
-          saveUserName: true,
-          savePassword: false
-        },
-        pageSetting: {
-          autoSaveFavorite: false,
-          defaultColorClass: false,
-          defaultColorNew: false,
-          defaultSort: {
-            sortKey: 'updateTime',
-            sortName: '更新时间',
-            sortBy: 'desc',
-            sortValue: -1,
-            sortIcon: 'arrow_downward'
-          },
-          maxDisplayNew: 10
-        }
-      },
-      userSetting: {
-        accountSetting: {},
-        pageSetting: {}
-      }
+      ]
     }
   },
   provide () {
@@ -112,9 +91,7 @@ export default {
         goClassification: this.goClassification,
         goNew: this.goNew,
         goAccount: this.goAccount,
-        userName: this.userName,
-        defaultSetting: this.defaultSetting,
-        userSetting: this.userSetting
+        getUserName: this.getUserName
       }
     }
   },
@@ -160,6 +137,10 @@ export default {
       }
       let password = this.$func.md5(this.loginData.password);
 
+      if (this.loginData.autoLogging) {
+        password = window.localStorage.getItem('shareFramePassword')
+      }
+
       //设置在登录状态
       this.loginData.isLogging = true;
 
@@ -172,17 +153,36 @@ export default {
         frame.loginData.isLogging = false
         if (response.data.success) {
           // this.$router.push('/showGlitch')
-          window.localStorage.shareFrameUserName = frame.loginData.userName
+          // if (window.localStorage.getItem('shareSaveUserNameFlag') === 'true') {
+          //   window.localStorage.setItem('shareFrameUserName', frame.loginData.userName)
+          // }
+          // if (window.localStorage.getItem('shareSavePasswordFlag') === 'true') {
+          //   window.localStorage.setItem('shareFramePassword', password)
+          // }
+          if (frame.loginData.autoLogging) {
+            swal({
+              title: '操作成功!',
+              text: '自动登录成功',
+              type: 'success',
+              confirmButtonText: 'OK',
+              timer: 2000
+            })
+          }
+          this.loginData.savePassword = password
+          frame.saveUserNameToStorage()
+          frame.savePasswordToStorage()
           frame.goNextStep()
         } else {
+          this.loginData.autoLogging = false
           throw new Error(response.data.errMsg)
         }
       }).catch((errMsg) => {
+        this.loginData.autoLogging = false
         frame.loginData.isLogging = false
         swal({
           title: '登录失败!',
           text: errMsg || '未知错误',
-          type: 'success',
+          type: 'error',
           confirmButtonText: 'OK'
         }).then(() => {
           frame.loginData.password = ''
@@ -201,6 +201,9 @@ export default {
     },
     goAccount () {
       this.clickBottomBar(this.tabList[3])
+    },
+    getUserName () {
+      return this.loginData.userName
     },
     clickBottomBar (item) {
       // 这两行的写法是一样的
@@ -234,8 +237,11 @@ export default {
     },
     initSetting (userSettings) {
       this.$settings.initData(this.$http, userSettings)
-      Object.assign(this.userSetting.accountSetting, this.defaultSetting.accountSetting, this.$settings.getSetting('share', 'accountSetting'))
-      Object.assign(this.userSetting.pageSetting, this.defaultSetting.pageSetting, this.$settings.getSetting('share', 'pageSetting'))
+      this.setDbSetting({
+        accountSetting: this.$settings.getSetting('share', 'accountSetting'),
+        pageSetting: this.$settings.getSetting('share', 'pageSetting')
+      })
+      this.setFavoriteList(this.$settings.getSetting('share', 'favoriteList'))
     },
     completeLoad () {
       let frame = this
@@ -248,11 +254,26 @@ export default {
         }
       }, 100)
     },
+    saveUserNameToStorage () {
+      if (window.localStorage.getItem('shareSaveUserNameFlag') === 'true') {
+        window.localStorage.setItem('shareFrameUserName', this.loginData.userName)
+      } else {
+        window.localStorage.removeItem('shareFrameUserName')
+      }
+    },
+    savePasswordToStorage () {
+      if (window.localStorage.getItem('shareSavePasswordFlag') === 'true') {
+        window.localStorage.setItem('shareFramePassword', this.loginData.savePassword)
+      } else {
+        window.localStorage.removeItem('shareFramePassword')
+      }
+    },
+
     // 下面一行是使用SimpleEventHub和MultiModuleEventHub的写法
     // ...mapMutations(['select'])
     // 下面两行是使用NamespaceEventHub的写法
     // ...mapMutations(['tab/select'])
-    ...mapMutations('share', ['selectTab', 'initProductData', 'goNextStep', 'goLogin', 'goStep'])
+    ...mapMutations('share', ['selectTab', 'initProductData', 'goNextStep', 'goLogin', 'goStep', 'setDbSetting', 'setFavoriteList'])
   },
   computed: {
     // 下面一行是使用SimpleEventHub和的写法
@@ -260,15 +281,19 @@ export default {
     // 下面一行是使用MultiModuleEventHub和NamespaceEventHub都能用的写法
     // ...mapState({ selectedTab: state => state.tab.selectedTab })
     // 下面一行是使用NamespaceEventHub专用的写法
-    userName () {
-      return this.loginData.userName
+    userSettingSaveUserName () {
+      return this.userSetting.accountSetting.saveUserName
+    },
+    userSettingSavePassword () {
+      return this.userSetting.accountSetting.savePassword
     },
     ...mapState('share', {
       selectedTabId: state => state.selectedTabId,
       step: state => state.step,
       productDataInit: state => state.productDataInit,
       productData: state => state.productData
-    })
+    }),
+    ...mapGetters('share', ['userSetting'])
   },
   watch: {
     selectedTabId (val) {
@@ -280,6 +305,31 @@ export default {
       } else if (val === 3) {
         this.selectTab(this.selectedTabId || 1)
       }
+    },
+    userSettingSaveUserName: {
+      handler (value) {
+        if (!this.productDataInit) {
+          return
+        }
+        window.localStorage.setItem('shareSaveUserNameFlag', value)
+        this.saveUserNameToStorage()
+      },
+      immediate: true
+    },
+    userSettingSavePassword: {
+      handler (value) {
+        if (!this.productDataInit) {
+          return
+        }
+        window.localStorage.setItem('shareSavePasswordFlag', value)
+        this.savePasswordToStorage()
+      },
+      immediate: true
+    }
+  },
+  created () {
+    if (window.localStorage.getItem('shareSaveUserNameFlag') === 'true') {
+      this.loginData.userName = window.localStorage.getItem('shareFrameUserName')
     }
   },
   mounted () {
@@ -289,7 +339,13 @@ export default {
       // this.initData()
       this.goStep(2)
     } else if (this.step === 1) {
-      this.initLogin()
+      if (window.localStorage.getItem('shareSavePasswordFlag') !== 'true') {
+        this.loginData.autoLogging = false
+        this.initLogin()
+      } else {
+        this.loginData.autoLogging = true
+        this.doLogin()
+      }
     }
     // if (this.$dictionary.inited && this.$columnInfo.inited) {
     //   var selectedTab = this.selectedTab || this.tabList[0].id

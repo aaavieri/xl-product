@@ -158,6 +158,7 @@
 
 <script>
 import TabCommon from './TabCommon'
+import {mapMutations} from 'vuex'
 
 export default {
   name: 'Account',
@@ -165,10 +166,14 @@ export default {
   inject: ['Frame'],
   data () {
     return {
-      userName: this.Frame.userName,
-      accountSetting: Object.assign({}, this.Frame.defaultSetting.accountSetting, this.$settings.getSetting('share', 'accountSetting')),
-      pageSetting: Object.assign({}, this.Frame.defaultSetting.pageSetting, this.$settings.getSetting('share', 'pageSetting')),
+      accountSetting: {},
+      pageSetting: {},
       showSortSelector: false
+    }
+  },
+  computed: {
+    userName () {
+      return this.Frame.getUserName()
     }
   },
   methods: {
@@ -266,10 +271,25 @@ export default {
         })
         return
       }
-      this.accountSetting.savePassword = !this.accountSetting.savePassword
+      let promise = Promise.resolve({value: true})
+      if (!this.accountSetting.savePassword) {
+        promise = swal({
+          title: '提示!',
+          text: '保存密码之后将会自动登录，确定要继续吗？',
+          type: 'question',
+          showCancelButton: true,
+          cancelButtonText: '取消',
+          confirmButtonText: '确定'
+        })
+      }
+      promise.then(({value}) => {
+        if (value) {
+          this.accountSetting.savePassword = !this.accountSetting.savePassword
+        }
+      })
     },
     setDefaultSort (sortType, sortOrder) {
-      Object.assign(this.pageSetting.defaultSort, sortOrder, sortType)
+      this.pageSetting.defaultSort = Object.assign({}, sortType, sortOrder)
     },
     showMaxDisplayNumber () {
       let frame = this
@@ -327,8 +347,8 @@ export default {
         confirmButtonText: '确定',
       }).then(({value}) => {
         if (value) {
-          Object.assign(frame.accountSetting, frame.Frame.defaultSetting.accountSetting, frame.$settings.getSetting('share', 'accountSetting'))
-          Object.assign(frame.pageSetting, frame.Frame.defaultSetting.pageSetting, frame.$settings.getSetting('share', 'pageSetting'))
+          Object.assign(frame.accountSetting, frame.userSetting.accountSetting)
+          Object.assign(frame.pageSetting, frame.userSetting.pageSetting)
         }
       })
     },
@@ -360,8 +380,10 @@ export default {
             type: 'success',
             confirmButtonText: '确定',
           })
-          Object.assign(frame.Frame.userSetting.accountSetting, frame.accountSetting)
-          Object.assign(frame.Frame.userSetting.pageSetting, frame.pageSetting)
+          frame.setDbSetting({
+            accountSetting: frame.accountSetting,
+            pageSetting: frame.pageSetting
+          })
         } else {
           swal({
             title: '提示!',
@@ -371,7 +393,12 @@ export default {
           })
         }
       })
-    }
+    },
+    ...mapMutations('share', ['setDbSetting'])
+  },
+  created () {
+    this.accountSetting = Object.assign({}, this.userSetting.accountSetting)
+    this.pageSetting = Object.assign({}, this.userSetting.pageSetting)
   }
 }
 </script>

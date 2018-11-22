@@ -1,3 +1,4 @@
+import { mapState, mapGetters } from 'vuex'
 export default {
   props: {
     themeName: {
@@ -64,8 +65,7 @@ export default {
     }
   },
   computed: {
-    userSetting () {
-      return this.Frame.userSetting
-    }
+    ...mapState('share', ['favoriteList']),
+    ...mapGetters('share', ['userSetting'])
   }
 }

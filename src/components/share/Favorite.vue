@@ -4,7 +4,7 @@
       <md-app md-waterfall md-mode="fixed" class="frame-app">
         <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div" style="display: inline-flex; justify-content: space-between;">
           <!--<span class="md-title" style="margin: 0 auto; text-align: center">我的收藏</span>-->
-          <md-button v-if="!userSetting.pageSetting.autoSaveFavorite" class="md-icon-button">
+          <md-button v-if="!userSetting.pageSetting.autoSaveFavorite" class="md-icon-button" @click="restoreFavoriteList">
             <md-icon class="mintui mintui-cancel"/>
           </md-button>
           <div class="card-product-color-selector" style="height: 100%; flex-grow: 1">
@@ -18,7 +18,7 @@
                   v-for="color in colorList">
             </span>
           </div>
-          <md-button v-if="!userSetting.pageSetting.autoSaveFavorite" class="md-icon-button">
+          <md-button v-if="!userSetting.pageSetting.autoSaveFavorite" class="md-icon-button" @click="saveFavoriteList">
             <md-icon class="mintui mintui-save1"/>
           </md-button>
         </md-app-toolbar>
@@ -130,7 +130,7 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+  import { mapState, mapMutations } from 'vuex'
   import TabCommon from './TabCommon'
   export default {
     name: 'Favorite',
@@ -140,7 +140,7 @@
         selectedColor: 'all',
         favoriteProductList: [],
         dataInitComplete: false,
-        favoriteList: this.$settings.getSetting('share', 'favoriteList') || []
+        // favoriteList: this.$settings.getSetting('share', 'favoriteList') || []
       }
     },
     inject: ['Frame'],
@@ -159,7 +159,12 @@
                 favoriteOrder: product.favoriteOrder
               }
             })
-            this.$settings.setSetting('share', 'favoriteList', favoriteList)
+            // this.$settings.setSetting('share', 'favoriteList', favoriteList)
+            this.setFavoriteList(favoriteList)
+            if (this.userSetting.pageSetting.autoSaveFavorite) {
+              this.$settings.setSetting('share', 'favoriteList', favoriteList)
+              this.$settings.saveSettings()
+            }
           }
         },
         deep: true
@@ -176,7 +181,24 @@
           return favoriteProduct
         }).filter(product => product.color).sort((product1, product2) => product1.favoriteOrder - product2.favoriteOrder)
       },
-      saveFavoriteProduct () {
+      restoreFavoriteList () {
+        let frame = this
+        swal({
+          title: '提示!',
+          text: '确认恢复收藏到上次保存的状态吗？',
+          type: 'question',
+          showCancelButton: true,
+          cancelButtonText: '取消',
+          confirmButtonText: '确定',
+        }).then(({value}) => {
+          if (value) {
+            frame.setFavoriteList(frame.$settings.getSetting('share', 'favoriteList'))
+            frame.initFavoriteProduct()
+          }
+        })
+      },
+      saveFavoriteList () {
+        this.$settings.setSetting('share', 'favoriteList', this.favoriteList)
         this.$settings.saveSettings().then(response => {
           if (response.data.success) {
             swal({
@@ -402,16 +424,8 @@
           position: "bottom-center",
           duration : 5000
         });
-      }
-      // activeUpDownIcon (element) {
-      //   let backColor = element.style.backgroundColor
-      //   element.style.backgroundColor = '#ffffff'
-      //   element.style.color = backColor
-      //   setTimeout(() => {
-      //     element.style.color = '#ffffff'
-      //     element.style.backgroundColor = backColor
-      //   }, 100)
-      // },
+      },
+      ...mapMutations('share', ['setFavoriteList'])
     },
     mounted () {
       this.initFavoriteProduct()

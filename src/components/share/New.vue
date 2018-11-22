@@ -54,7 +54,7 @@
                     <transition enter-active-class="animated fadeInDown"
                                 leave-active-class="animated fadeOutUp"
                                 :duration="300">
-                      <md-card-content v-show="product.expand" class="new-card-color-selector">
+                      <md-card-content v-show="product.expand && !userSetting.pageSetting.defaultColorNew" class="new-card-color-selector">
                         <div v-click-outside="closeExpand(product)">
                           <span :style="selectorColorStyle(color)"
                                 :class="{'active' : color.colorName === product.color}"
@@ -114,13 +114,14 @@ export default {
   data () {
     return {
       displayList: [],
-      maxDisplayNumber: 10,
-      activeSort: {sortKey: null, sortName: null, sortBy: null, sortValue: null, sortIcon: null},
-      favoriteList: this.$settings.getSetting('share', 'favoriteList') || []
+      activeSort: {sortKey: null, sortName: null, sortBy: null, sortValue: null, sortIcon: null}
     }
   },
   inject: ['Frame'],
   computed: {
+    maxDisplayNumber () {
+      return this.userSetting.pageSetting.maxDisplayNew
+    },
     activeSortKey () {
       return this.activeSort.sortKey
     },
@@ -138,7 +139,10 @@ export default {
     },
     favoriteList: {
       handler (value) {
-        this.$settings.setSetting('share', 'favoriteList', value)
+        if (this.userSetting.pageSetting.autoSaveFavorite) {
+          this.$settings.setSetting('share', 'favoriteList', value)
+          this.$settings.saveSettings()
+        }
       },
       deep: true
     }
@@ -146,6 +150,7 @@ export default {
   methods: {
     initData () {
       this.setSort(this.sortOrderList[0], this.sortTypeList[0])
+      Object.assign(this.activeSort, this.userSetting.pageSetting.defaultSort)
     },
     setSort (sortOrder, sortType) {
       Object.assign(this.activeSort, sortOrder, sortType)

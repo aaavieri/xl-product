@@ -26,6 +26,57 @@ const Func = {
     str = md5sum.digest('hex');
     return str;
   },
+  getType (obj) {
+    let type = Object.prototype.toString.call(obj)
+    return /object\s(.*)]/.exec(type)[1]
+  },
+  isType (obj, type) {
+    obj = this.getType(obj).toLowerCase()
+    return obj === type
+  },
+  deepCopy (src) {
+    // 若不是对象类型或是null类型，直接输出
+    if (typeof src !== 'object' || src === null) {
+      return src
+    }
+
+    let i;
+    // 根据目标是Array类型还是object来设置目标参数的类型
+    let target = this.isType(src, 'array') ? [] : {};
+    for (i in src) {
+      // 判断当前复制的对象是否为对象类型数据
+      if (typeof src[i] === 'object') {
+        target[i] = this.deepCopy(src[i]);
+      } else {
+        target[i] = src[i]
+      }
+    }
+    return target
+  },
+  deepAssign (target) {
+    let sources = Array.prototype.slice.apply(arguments).slice(1)
+    // 若不是对象类型或是null类型，直接输出
+    if (typeof target !== 'object' || target === null || sources.length === 0) {
+      return target
+    }
+
+    let source, index
+    for (index in sources) {
+      source = sources[index]
+      if (!source || !this.isType(source, 'object')) {
+        continue
+      }
+      let key
+      for (key in source) {
+        if (typeof source[key] === 'object') {
+          target[key] = this.deepCopy(source[key])
+        } else {
+          target[key] = source[key]
+        }
+      }
+    }
+    return target
+  },
 }
 
 const FuncPlugin = {
@@ -45,4 +96,6 @@ const FuncPlugin = {
     })
   }
 }
+
+export {Func}
 export default FuncPlugin

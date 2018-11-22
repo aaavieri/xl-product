@@ -76,27 +76,35 @@
                     <span>{{treeItem.name}}</span>
                     <p>{{treeItem.serial}}</p>
                   </div>
-                  <md-button v-if="!treeItem.showColorSelector" class="md-icon-button md-list-action bottom" @click.stop="cancelFavorite(treeItem)">
+                  <md-button v-if="!treeItem.showColorSelector"
+                             class="md-icon-button md-list-action bottom" @click.stop="cancelFavorite(treeItem)">
                     <md-icon class="mintui mintui-red_star favorite-icon" :style="favoriteIconStyle(treeItem)"/>
                   </md-button>
-                  <popper v-else trigger="click" :append-to-body="true"
-                          :options="{placement: 'left'}"
-                          :data-value="treeItem"
-                          @show="selectColorStart"
-                          @hide="selectColorComplete"	>
-                    <div class="color-select-div" >
+                  <template v-else>
+                    <md-button v-if="userSetting.pageSetting.defaultColorClass"
+                               class="md-icon-button md-list-action bottom" @click.stop="selectColorDefault(treeItem)">
+                      <md-icon class="mintui" :class="treeItem.color === 'none' ? 'mintui-star-empty' : 'mintui-red_star'"
+                               :style="favoriteIconStyle(treeItem)"/>
+                    </md-button>
+                    <popper v-else trigger="click" :append-to-body="true"
+                            :options="{placement: 'left'}"
+                            :data-value="treeItem"
+                            @show="selectColorStart"
+                            @hide="selectColorComplete"	>
+                      <div class="color-select-div" >
                       <span class="color-select-span"
                             :style="selectorColorStyle(color)"
                             :class="{'active' : color.colorName === treeItem.color }"
                             @click.stop="selectColor(color, treeItem)"
                             v-for="color in colorList">
                       </span>
-                    </div>
-                    <md-button slot="reference" class="md-icon-button md-list-action bottom" @click.stop="()=>{}">
-                      <md-icon class="mintui" :class="treeItem.color === 'none' ? 'mintui-star-empty' : 'mintui-red_star'"
-                               :style="favoriteIconStyle(treeItem)"/>
-                    </md-button>
-                  </popper>
+                      </div>
+                      <md-button slot="reference" class="md-icon-button md-list-action bottom" @click.stop="()=>{}">
+                        <md-icon class="mintui" :class="treeItem.color === 'none' ? 'mintui-star-empty' : 'mintui-red_star'"
+                                 :style="favoriteIconStyle(treeItem)"/>
+                      </md-button>
+                    </popper>
+                  </template>
                 </md-list-item>
               </md-list>
             </md-list-item>
@@ -154,8 +162,7 @@ export default {
       searchText: '',
       selectClass: 'all',
       showPopUp: false,
-      selectProduct: {},
-      favoriteList: this.$settings.getSetting('share', 'favoriteList') || []
+      selectProduct: {}
     }
   },
   methods: {
@@ -296,6 +303,16 @@ export default {
         }
       }
     },
+    selectColorDefault (treeItem) {
+      treeItem.favorite = true
+      treeItem.color = 'default'
+      this.favoriteList.push({
+        tableName: treeItem.tableName,
+        serial: treeItem.serial,
+        color: treeItem.color,
+        favoriteOrder: this.favoriteList.length
+      })
+    },
     selectColorStart (popper) {
       let item = popper.dataValue
       item.favorite = true
@@ -335,7 +352,10 @@ export default {
     },
     favoriteList: {
       handler (value) {
-        this.$settings.setSetting('share', 'favoriteList', value)
+        if (this.userSetting.pageSetting.autoSaveFavorite) {
+          this.$settings.setSetting('share', 'favoriteList', value)
+          this.$settings.saveSettings()
+        }
       },
       deep: true
     }
