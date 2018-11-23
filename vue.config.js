@@ -45,8 +45,7 @@ module.exports = {
       "vue-draggable": "VueDraggable",
       "vue-clipboard2": "VueClipboard",
       "vue-toasted": "Toasted",
-      "vue2-touch-events": "vueTouchEvents",
-      "vue-popperjs": "VuePopper"
+      "vue2-touch-events": "vueTouchEvents"
     } : {
       "vue": "Vue",
       "vuex": "Vuex",
