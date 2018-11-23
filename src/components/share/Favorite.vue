@@ -57,10 +57,10 @@
                         <p class="card-product-category">{{favoriteItem.serial}}</p>
                         <h3 class="card-product-name">{{favoriteItem.name}}</h3>
                       </div>
-                      <div class="md-layout-item md-layout-item card-product-delete-button-area" :class="operationPartClass(favoriteItem)">
-                        <div data-action="delete" @click="deleteItem(favoriteItem, index)">
-                          <md-icon style="color: #ffffff" v-show="favoriteItem.actionStatus === 2">delete</md-icon>
-                        </div>
+                      <div class="md-layout-item md-layout-item card-product-delete-button-area"
+                           :class="operationPartClass(favoriteItem)"
+                           @click="deleteItem(favoriteItem, index)">
+                        <md-icon style="color: #ffffff" v-show="favoriteItem.actionStatus === 2">delete</md-icon>
                       </div>
                     </md-card-header>
                     <transition enter-active-class="animated fadeInDown"
@@ -297,9 +297,9 @@
       },
       operationPartClass (favoriteItem) {
         if (favoriteItem.actionStatus === 1) {
-          return 'md-size-20'
-        } else {
           return 'md-size-hide'
+        } else {
+          return 'md-size-20'
         }
       },
       swipeLeft (index) {
@@ -630,12 +630,13 @@
     border-color: #0bf;
   }
 
-  .card-product-delete-button-area div[data-action="delete"] {
+  .card-product-delete-button-area {
     background: linear-gradient(60deg, #ec407a, #d81b60);
     display: flex;
     justify-content:center;
-    width: 100%;
-    height: 100%;
+    align-items: center;
+    /*width: 100%;*/
+    /*height: 100%;*/
   }
 
   .card-product-footer-button-area div[data-action="copy"] {
