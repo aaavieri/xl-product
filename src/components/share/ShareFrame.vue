@@ -5,14 +5,16 @@
     <div class="mask" v-else-if="step === 2">
       <md-progress-spinner :md-diameter="70" :md-stroke="7" md-mode="indeterminate"/>
     </div>
-    <div class="frame-container frame-self" v-else-if="step === 3">
-      <!--<medical :medicalData="medicalData" :selectedTabData="selected"></medical>-->
-      <transition enter-active-class="animated fadeIn"
-                  leave-active-class="animated fadeOut"
-                  :duration="300">
-        <component :is="selected.compName" :theme-name="selected.themeName">
-        </component>
-      </transition>
+    <template v-else-if="step === 3">
+      <div class="frame-container">
+        <!--<medical :medicalData="medicalData" :selectedTabData="selected"></medical>-->
+        <transition enter-active-class="animated fadeIn"
+                    leave-active-class="animated fadeOut"
+                    :duration="300">
+          <component :is="selected.compName" :theme-name="selected.themeName">
+          </component>
+        </transition>
+      </div>
       <md-card class="tabbar-container">
         <md-bottom-bar md-type="fixed"
                        :class="selected.themeName + '-bottom-bar'"
@@ -23,7 +25,7 @@
                               @click="clickBottomBar(item)"/>
         </md-bottom-bar>
       </md-card>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -78,7 +80,7 @@ export default {
           id: 4,
           name: '设置',
           compName: 'Account',
-          themeName: 'brown-custom',
+          themeName: 'orange-custom',
           imgSrc: 'account_box'
         }
       ]

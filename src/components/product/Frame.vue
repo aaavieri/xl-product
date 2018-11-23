@@ -3,74 +3,78 @@
     <div class="mask" v-show="!loaded">
       <md-progress-spinner :md-diameter="70" :md-stroke="7" md-mode="indeterminate"></md-progress-spinner>
     </div>
-    <div class="frame-container frame-self" v-show="loaded">
-      <!--<medical :medicalData="medicalData" :selectedTabData="selected"></medical>-->
-      <!--<md-card class="tabbar-container" :md-theme="selected.themeName">-->
+    <template v-show="loaded">
+      <div class="frame-container">
+        <!--<medical :medicalData="medicalData" :selectedTabData="selected"></medical>-->
+        <!--<md-card class="tabbar-container" :md-theme="selected.themeName">-->
         <!--<md-bottom-bar md-type="shift" class="my-bottom-bar md-primary md-elevation-20 radius-shape-div" v-bind:md-active-item="selected.id">-->
-          <!--<md-bottom-bar-item class="my-bottom-item" v-for="(item, index) in tabList"-->
-                              <!--:key="index" :id="item.id" :md-label="item.name" :md-icon="item.imgSrc"-->
-                              <!--@click="clickBottomBar(item)"></md-bottom-bar-item>-->
+        <!--<md-bottom-bar-item class="my-bottom-item" v-for="(item, index) in tabList"-->
+        <!--:key="index" :id="item.id" :md-label="item.name" :md-icon="item.imgSrc"-->
+        <!--@click="clickBottomBar(item)"></md-bottom-bar-item>-->
         <!--</md-bottom-bar>-->
-      <!--</md-card>-->
-      <md-card class="page-container no-border">
-        <md-app md-waterfall md-mode="fixed" class="frame-app">
-          <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div">
-            <md-button class="md-icon-button">
-              <md-icon>menu</md-icon>
-            </md-button>
-            <span class="md-title" v-show="!searching">{{selected.name}}</span>
-            <md-autocomplete class="search" md-layout="box"
-                             v-model="searchText" v-show="searching" :md-options="searchList" md-dense>
-              <label>Search...</label>
-            </md-autocomplete>
-            <div class="md-toolbar-section-end">
-              <md-button class="md-icon-button" v-show="searching" @click="cancelSearch()">
-                <md-icon>undo</md-icon>
-              </md-button>
-              <md-button class="md-icon-button" v-show="!searching" @click="searching = true">
-                <md-icon>search</md-icon>
-              </md-button>
-            </div>
-          </md-app-toolbar>
-          <md-app-content>
-            <md-list>
-              <md-list-item md-expand class="typeList" v-for="(item, index) in treeData"
-                            :key="'group' + index" :md-expanded.sync="item.open">
-                <md-icon>rounded_corner</md-icon>
-                <span class="md-list-item-text">{{item.name}}</span>
-                <md-list slot="md-expand">
-                  <md-list-item class="md-inset has-ripple" v-for="(treeItem, treeIndex) in item.children" v-show="!searching || treeItem.matchSearch"
-                                :key="'group' + index + 'item' + treeIndex" @click="showToolTip(treeItem)">
-                    <div class="md-list-item-text">
-                      <span>{{treeItem.name}}</span>
-                      <p>{{treeItem.serial}}</p>
-                    </div>
-                    <md-button class="md-icon-button md-list-action" @click.stop="clickDetail(treeItem)">
-                      <md-icon>open_in_new</md-icon>
-                    </md-button>
+        <!--</md-card>-->
+        <div class="app-container">
+          <md-card class="page-container no-border">
+            <md-app md-waterfall md-mode="fixed" class="frame-app">
+              <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div">
+                <md-button class="md-icon-button">
+                  <md-icon>menu</md-icon>
+                </md-button>
+                <span class="md-title" v-show="!searching">{{selected.name}}</span>
+                <md-autocomplete class="search" md-layout="box"
+                                 v-model="searchText" v-show="searching" :md-options="searchList" md-dense>
+                  <label>Search...</label>
+                </md-autocomplete>
+                <div class="md-toolbar-section-end">
+                  <md-button class="md-icon-button" v-show="searching" @click="cancelSearch()">
+                    <md-icon>undo</md-icon>
+                  </md-button>
+                  <md-button class="md-icon-button" v-show="!searching" @click="searching = true">
+                    <md-icon>search</md-icon>
+                  </md-button>
+                </div>
+              </md-app-toolbar>
+              <md-app-content>
+                <md-list>
+                  <md-list-item md-expand class="typeList" v-for="(item, index) in treeData"
+                                :key="'group' + index" :md-expanded.sync="item.open">
+                    <md-icon>rounded_corner</md-icon>
+                    <span class="md-list-item-text">{{item.name}}</span>
+                    <md-list slot="md-expand">
+                      <md-list-item class="md-inset has-ripple" v-for="(treeItem, treeIndex) in item.children" v-show="!searching || treeItem.matchSearch"
+                                    :key="'group' + index + 'item' + treeIndex" @click="showToolTip(treeItem)">
+                        <div class="md-list-item-text">
+                          <span>{{treeItem.name}}</span>
+                          <p>{{treeItem.serial}}</p>
+                        </div>
+                        <md-button class="md-icon-button md-list-action" @click.stop="clickDetail(treeItem)">
+                          <md-icon>open_in_new</md-icon>
+                        </md-button>
+                      </md-list-item>
+                    </md-list>
                   </md-list-item>
                 </md-list>
-              </md-list-item>
-            </md-list>
-          </md-app-content>
-        </md-app>
-        <md-speed-dial class="md-bottom-left" mdEvent="click" >
-          <md-speed-dial-target>
-            <md-icon class="md-morph-initial">add</md-icon>
-            <md-icon class="md-morph-final">clear</md-icon>
-          </md-speed-dial-target>
+              </md-app-content>
+            </md-app>
+            <md-speed-dial class="md-bottom-left" mdEvent="click" >
+              <md-speed-dial-target>
+                <md-icon class="md-morph-initial">add</md-icon>
+                <md-icon class="md-morph-final">clear</md-icon>
+              </md-speed-dial-target>
 
-          <md-speed-dial-content>
-            <md-button class="md-icon-button" @click="changeAllStatus(true)">
-              <md-icon>unfold_more</md-icon>
-            </md-button>
+              <md-speed-dial-content>
+                <md-button class="md-icon-button" @click="changeAllStatus(true)">
+                  <md-icon>unfold_more</md-icon>
+                </md-button>
 
-            <md-button class="md-icon-button" @click="changeAllStatus(false)">
-              <md-icon>unfold_less</md-icon>
-            </md-button>
-          </md-speed-dial-content>
-        </md-speed-dial>
-      </md-card>
+                <md-button class="md-icon-button" @click="changeAllStatus(false)">
+                  <md-icon>unfold_less</md-icon>
+                </md-button>
+              </md-speed-dial-content>
+            </md-speed-dial>
+          </md-card>
+        </div>
+      </div>
       <md-card class="tabbar-container">
         <md-bottom-bar md-type="fixed" class="my-bottom-bar md-primary md-elevation-20 radius-shape-div"
                        :md-active-item="selected.id || tabList[0].id">
@@ -79,7 +83,7 @@
                               @click="clickBottomBar(item)"/>
         </md-bottom-bar>
       </md-card>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -261,10 +265,10 @@ export default {
     }
     this.$dictionary.initData(this.$http)
     this.$columnInfo.initData(this.$http)
-    let bodyHeight = document.body.offsetHeight
-    this.$el.querySelector('div.frame-app').style.height = `${bodyHeight - 60}px`
-    this.$el.querySelector('div.frame-app').style.minHeight = `${bodyHeight - 60}px`
-    this.$el.querySelector('div.frame-app').style.maxHeight = `${bodyHeight - 60}px`
+    // let bodyHeight = document.body.offsetHeight
+    // this.$el.querySelector('div.frame-app').style.height = `${bodyHeight - 60}px`
+    // this.$el.querySelector('div.frame-app').style.minHeight = `${bodyHeight - 60}px`
+    // this.$el.querySelector('div.frame-app').style.maxHeight = `${bodyHeight - 60}px`
     this.initData()
   }
 }
