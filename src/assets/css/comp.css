@@ -28,7 +28,7 @@ html {
   width: 100%;
   display: inline-flex;
   overflow: hidden;
-  border: 1px solid rgba(#000, 0.26);
+  border: 0px solid rgba(#000, 0.26);
   background: rgba(#000, 0.06);
   position: fixed;
   bottom: 60px;
