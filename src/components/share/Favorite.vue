@@ -89,14 +89,14 @@
                     </md-card-content>
                     <md-card-actions class="card-product-actions" md-alignment="left">
                       <div class="actions-content md-layout">
-                        <div class="md-layout-item md-size-80" style="display: flex; align-content: flex-start">
+                        <div class="md-layout-item md-size-70" style="display: flex; align-content: flex-start">
                           <md-icon class="mintui mintui-wt-url"/>
                           <a class="favorite-url" :href="favoriteItem.detailUrl">
                             {{favoriteItem.detailUrl ? favoriteItem.detailUrl : '暂无'}}
                           </a>
                         </div>
-                        <div class="md-layout-item md-size-20 card-product-footer-button-area">
-                          <div style="display: flex; flex-direction: row" v-show="favoriteItem.actionStatus === 1">
+                        <div v-show="favoriteItem.actionStatus === 1" class="md-layout-item md-size-30 card-product-footer-button-area" style="justify-content: flex-end">
+                          <div style="display: flex; flex-direction: row; justify-content: flex-end">
                             <i data-action="up"
                                :style="buttonColorStyle(favoriteItem.color)"
                                @click="upItem(favoriteItem, index, $event)"
@@ -106,16 +106,27 @@
                                @click="downItem(favoriteItem, index, $event)"
                                class="md-elevation-20">arrow_downward</i>
                           </div>
-                          <div data-action="copy" v-show="favoriteItem.actionStatus === 2">
-                            <!--<md-icon style="color: #ffffff">复制</md-icon>-->
-                            <span style="color: #ffffff; font-size: 10px"
-                                  @click="checkCopyItem(favoriteItem)"
-                                  v-clipboard:copy="favoriteItem.detailUrl"
-                                  v-clipboard:success="onCopy"
-                                  v-clipboard:error="onCopyError">复制</span>
-                          </div>
-                          <!--<md-button class="md-raised" :style="buttonColorStyle(favoriteItem.color)">复制</md-button>-->
                         </div>
+                        <template>
+                          <div class="md-layout-item md-size-10"></div>
+                          <div class="md-layout-item md-size-20 card-product-footer-button-area">
+                            <div data-action="copy"
+                                 v-show="favoriteItem.actionStatus === 2"
+                                 @click="checkCopyItem(favoriteItem)"
+                                 v-clipboard:copy="favoriteItem.detailUrl"
+                                 v-clipboard:success="onCopy"
+                                 v-clipboard:error="onCopyError">
+                              复制
+                            </div>
+                            <!--<md-icon style="color: #ffffff">复制</md-icon>-->
+                            <!--<span style="color: #ffffff; font-size: 10px;"-->
+                            <!--@click="checkCopyItem(favoriteItem)"-->
+                            <!--v-clipboard:copy="favoriteItem.detailUrl"-->
+                            <!--v-clipboard:success="onCopy"-->
+                            <!--v-clipboard:error="onCopyError">复制</span>-->
+                            <!--<md-button class="md-raised" :style="buttonColorStyle(favoriteItem.color)">复制</md-button>-->
+                          </div>
+                        </template>
                       </div>
                     </md-card-actions>
                   </md-card>
@@ -630,9 +641,13 @@
   .card-product-footer-button-area div[data-action="copy"] {
     background: linear-gradient(60deg, #ec407a, #d81b60);
     display: flex;
+    display: -webkit-flex;
     justify-content:center;
     width: 100%;
     height: 100%;
+    color: #ffffff;
+    font-size: 12px;
+    align-items: center
   }
 
   .card-product-footer-button-area {
@@ -642,7 +657,7 @@
 
   .card-product-footer-button-area i[data-action="up"],
   .card-product-footer-button-area i[data-action="down"] {
-    margin: 20px 10px -20px 0px;
+    margin: 20px -10px -20px 20px;
     background-color: #fff;
     padding: 7px;
     border-radius: 50%;
