@@ -12,6 +12,12 @@ html {
   align-items:center;
   background: rgba(0, 0, 0, 0.4);
 }
+.app-container {
+  width: 100%;
+  height: calc(100vh - 60px);
+  min-height: calc(100vh - 60px);
+  max-height: calc(100vh - 60px);
+}
 .frame-container {
   width: 100%;
   /*height: calc(100vh - 60px);*/

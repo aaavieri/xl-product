@@ -67,5 +67,11 @@ export default {
   computed: {
     ...mapState('share', ['favoriteList']),
     ...mapGetters('share', ['userSetting'])
+  },
+  mounted () {
+    let bodyHeight = window.screen.height
+    this.$el.querySelector('div.frame-app').style.height = `${bodyHeight - 60}px`
+    this.$el.querySelector('div.frame-app').style.minHeight = `${bodyHeight - 60}px`
+    this.$el.querySelector('div.frame-app').style.maxHeight = `${bodyHeight - 60}px`
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="frame-container">
+  <div class="app-container">
     <md-card class="page-container no-border" :md-theme="themeName">
       <md-app md-waterfall md-mode="fixed" class="frame-app">
         <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div" style="display: inline-flex; justify-content: space-between;">
@@ -435,12 +435,6 @@
 </script>
 
 <style scoped lang="scss">
-  .frame-container {
-    width: 100%;
-  }
-  .frame-self {
-    height: 100%;
-  }
   .product-card {
     width: calc(100% - 20px);
     margin: 0px 4px 24px 4px;

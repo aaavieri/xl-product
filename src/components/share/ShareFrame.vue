@@ -78,7 +78,7 @@ export default {
           id: 4,
           name: '设置',
           compName: 'Account',
-          themeName: 'orange-custom',
+          themeName: 'brown-custom',
           imgSrc: 'account_box'
         }
       ]
@@ -372,21 +372,27 @@ export default {
 
 <style scoped>
   .green-custom-bottom-bar {
-    background-color: var(--md-theme-green-custom-primary, #448aff)!important;
+    background-color: #99CC33!important;
+    background-color: var(--md-theme-green-custom-primary, #99CC33)!important;
   }
   .purple-custom-bottom-bar {
-    background-color: var(--md-theme-purple-custom-primary, #448aff)!important;
+    background-color: #9C27B0!important;
+    background-color: var(--md-theme-purple-custom-primary, #9C27B0)!important;
   }
   .orange-custom-bottom-bar {
-    background-color: var(--md-theme-orange-custom-primary, #448aff)!important;
+    background-color: #FF9800!important;
+    background-color: var(--md-theme-orange-custom-primary, #FF9800)!important;
   }
   .pink-custom-bottom-bar {
-    background-color: var(--md-theme-pink-custom-primary, #448aff)!important;
+    background-color: #E91E63!important;
+    background-color: var(--md-theme-pink-custom-primary, #E91E63)!important;
   }
   .brown-custom-bottom-bar {
-    background-color: var(--md-theme-brown-custom-primary, #448aff)!important;
+    background-color: #795548!important;
+    background-color: var(--md-theme-brown-custom-primary, #795548)!important;
   }
   .default-bottom-bar {
+    background-color: #448AFF!important;
     background-color: var(--md-theme-default-primary, #448aff)!important;
   }
 </style>

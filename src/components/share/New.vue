@@ -1,5 +1,5 @@
 <template>
-  <div class="frame-container">
+  <div class="app-container">
     <md-card class="page-container no-border" :md-theme="themeName">
       <md-app md-waterfall md-mode="fixed" class="frame-app">
         <md-app-toolbar class="md-primary my-elevation-20 radius-shape-div">
