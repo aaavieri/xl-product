@@ -1,3 +1,7 @@
+const CompressionWebpackPlugin = require('compression-webpack-plugin')
+const productionGzipExtensions = ['js', 'css']
+const isProduction = process.env.NODE_ENV === 'production'
+
 module.exports = {
   productionSourceMap: process.env.NODE_ENV !== 'production',
   devServer: {
@@ -34,7 +38,7 @@ module.exports = {
   },
 
   configureWebpack: {
-    externals: process.env.NODE_ENV === 'production' ? {
+    externals: isProduction ? {
       "vue": "Vue",
       "vuex": "Vuex",
       "vue-router": "VueRouter",
@@ -57,6 +61,12 @@ module.exports = {
       "vue-clipboard2": "VueClipboard",
       "vue-toasted": "Toasted",
       "vue2-touch-events": "vueTouchEvents"
-    }
+    },
+    plugins: isProduction ? [new CompressionWebpackPlugin({
+      algorithm: 'gzip',
+      test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
+      threshold: 10240,
+      minRatio: 0.8
+    })] : []
   }
 }
