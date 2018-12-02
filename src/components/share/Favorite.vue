@@ -209,7 +209,7 @@
         })
       },
       saveFavoriteList () {
-        this.$settings.setSetting('share', 'favoriteList', this.favoriteList)
+        this.$settings.setSetting('share', 'favoriteList', this.favoriteList.map(item => this.$func.deepAssign({}, item)))
         this.$settings.saveSettings().then(response => {
           if (response.data.success) {
             swal({

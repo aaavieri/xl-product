@@ -21,8 +21,18 @@ const SettingsInfo = {
     // this.saveSettings()
   },
   saveSettings () {
-    this.settings = JSON.stringify(this.settingInfo)
-    return this.http.post('/authApi/saveSettings', {settings: this.settings})
+    if (this.settings !== JSON.stringify(this.settingInfo)) {
+      this.settings = JSON.stringify(this.settingInfo)
+      return this.http.post('/authApi/saveSettings', {settings: this.settings})
+    } else {
+      return Promise.resolve({
+        data: {
+          success: true,
+          errMsg: null,
+          data: {}
+        }
+      })
+    }
   },
   clearSettings () {
     this.settings = null
